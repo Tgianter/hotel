@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../static/js/axios.min.js"></script>
+		<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+		<script type="text/javascript" src="../static/js/vue.min.js"></script>
+		
+		<style type="text/css">
+			.index_tr{
+				display:inline-block;
+				/* border: 1px solid lightgray; */
+				margin-left:60px;
+				width:100px;
+				height: 24px;
+				background-color: rosybrown;
+			}
+			#menu{
+				position: absolute;
+				left: 10px;
+				top: 10px;
+				width: 850px;
+				height: 25px;
+				border: 1px solid lightgray;
+				background-color: rosybrown;
+			}
+			#addOrder{
+				position: absolute;
+				left: 10px;
+				top: 35px;
+				width: 850px;
+				height: 400px;
+				border: 1px solid lightgray
+			}
+			#showArea{
+				position: absolute;
+				width: 400px;
+				height: 400px;
+				left: 0px;
+				top:0px;
+				border: 1px solid lightgray;
+				background-color: beige;
+			}
+			#addArea{
+				position: absolute;
+				width: 450px;
+				height: 400px;
+				left: 400px;
+				top:0px;
+				border: 1px solid lightgray;
+				background-color: bisque;
+			}
+			.item{
+				display:inline-block;
+				border: 1px solid lightgray;
+				margin:1px;
+				width:50px;
+				height: 50px;
+				background-color: aqua;
+			}
+			#showArea button{
+				display:inline-block;
+				border: 1px solid lightgray;
+				margin:1px;
+				width:50px;
+				height: 50px;
+			}
+			.addTable{
+				display: none;
+			}
+			button#out{
+				width: 75px;
+				height: 25px;
+				margin-top: 20px;
+				margin-left: 20px;
+			}
+			button#detail{
+				width: 75px;
+				height: 25px;
+				margin-top: 20px;
+				margin-left: 20px;
+			}
+			#showText{
+				position: absolute;
+				left: 20px;
+			}
+		</style>
+		<title>首页</title>
+	</head>
+	<body>
+		<div id="index_page">
+			<div id="manage_item">
+				<div id="menu">
+					<div class="index_tr"><button type="button" @click="mangeUser">权限管理</button></div>
+					<div class="index_tr"><button type="button" @click="manageEmployee">员工管理</button></div>
+					<div class="index_tr"><button type="button" @click="manageClient">客户管理</button></div>
+					<div class="index_tr"><button type="button" @click="manageRoom">客房管理</button></div>
+					<div class="index_tr"><button type="button" @click="manageCheck">订单管理</button></div>
+					<!-- <div class="index_tr"><td @click="manageOrderItem">订单项管理</td></div> -->
+					
+					<!-- <tr class="index_tr"><td @click="">管理</td></tr> -->											
+				</div>
+				
+				<div id="addOrder">
+					<div id="showArea">
+						<button   type="button"  v-for="r in rooms" @click="docheck(r)" v-bind:class="{item: r.checked!=1}">
+							<td>{{r.roomid}}</td>
+						</button>
+					</div>
+					<div id="addArea">
+						<table align="center"  v-bind:class="{addTable: tag==1}">
+							<tr>
+								<td>id:</td>
+								<td><input  type="text"  v-model="id" /></td>
+							</tr>
+							<tr>
+								<td>name:</td>
+								<td><input  type="text" v-model="name" /></td>
+							</tr>
+							<tr>
+								<td>sex:</td>
+								<td><input type="text" v-model="sex"></td>
+							</tr>
+							<tr>
+								<td>address:</td>
+								<td><input type="text" v-model="address"></td>
+							</tr>
+							<tr>
+								<td>phonenumber:</td>
+								<td><input type="text" v-model="phonenumber"></td>
+							</tr>
+							<tr>
+								<td>reciepts:</td>
+								<td><input type="text" v-model="reciepts"/></td>
+							</tr>
+							<tr>
+								<td><button type="button"   @click="addClient">入住</button></td>
+								
+							</tr>
+						</table>
+						<table v-if="show" border="1" cellspacing="0"  v-bind:class="{addTable: tag==0}" >
+							<thead>
+								<td>id</td>
+								<td>房间号</td>
+								<td>实收</td>
+								<td>押金</td>
+							</thead>
+							<tr v-for="c in checks">
+								<td>{{c.cid}}</td>
+								<td>{{c.rid}}</td>
+								<td>{{c.reciepts}}</td>
+								<td>{{c.deposit}}</td>
+							</tr>
+							
+						</table>
+						<button id="out" v-if="show" v-bind:class="{addTable: tag==0}" type="button" @click="out">退房</button>
+						<button id="detail" v-if="show" v-bind:class="{addTable: tag==0}" type="button" @click="detail">入住详情</button>
+						
+						<table v-if="showDetail" border="1" cellspacing="0"  v-bind:class="{addTable: tag==0}" >
+							<thead>
+								<td>id</td>
+								<td>name</td>
+								<td>sex</td>
+								<td>address</td>
+								<td>phonenumber</td>
+							</thead>
+							<tbody>
+								<td>{{client.id}}</td>
+								<td>{{client.name}}</td>
+								<td>{{client.sex}}</td>
+								<td>{{client.address}}</td>
+								<td>{{client.phonenumber}}</td>
+							</tbody>
+							
+						</table>
+						<div v-if="!show" id="showText">
+							<p>hello! 欢迎使用我们的酒店管理系统！！！</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			var vue= new Vue({
+				el:"#index_page",
+				data:{
+					showDetail:false,
+					show:false,
+					clients:{},
+					checks:[],
+					check:{},
+					rooms:[],
+					room:{},
+					roomPageInfo:{},
+					tid:null,
+					client:{},
+					id:'',
+					name:'',
+					sex:'',
+					phonenumber:'',
+					address:'',
+					reciepts:null,
+					tag:1
+				},
+				mounted:function(){
+					this.refresh();
+					// alert(this.rooms.length);
+				},
+				methods:{
+					resolveCheck: function(){
+						// alert(this.checks.length)
+						this.check=this.checks[0];
+					},
+					detail: function(){
+						this.resolveCheck();
+						// alert(this.check.cid);
+						var url="/client/getClient?id="+this.check.cid;
+						axios.get(url).then(function(response){
+							vue.client=response.data;
+						});
+						this.showDetail=true;
+					},
+					out: function(){
+						var url="/check/deleteCheckByRoomId?roomid="+this.room.roomid;
+						axios.delete(url).then(function(){
+							
+						});
+						location.href="/view/index";
+					},
+					docheck: function(r){
+						// alert(r.checked);
+						if(r.checked==1){
+							// this.query();
+							this.show=true;
+							this.showDetail=false;
+							this.queryByType(r.roomid);
+							this.room=r;
+							this.tag=1; 	//tag为1隐藏增加表；为0显示增加表
+						}else{
+							this.showDetail=false;
+							this.show=true;
+							this.room=r;
+							this.tag=0;
+							
+						}
+					},
+					getCheck: function(cid){
+						var url="/check/getCheckByCid?cid="+cid;
+						axios.get(url).then(function(response){
+							vue.check=response.data;
+						});
+					},
+					queryByType: function(roomid){
+						var url="/check/getCheckByRid?id="+roomid+"&start="+1;
+						axios.get(url).then(function(response){
+							// vue.typePageInfo=response.data;
+							vue.checks=response.data.list;
+						});
+					},
+					query: function(){
+						var url="/client/getClient?id="+this.id;
+						axios.get(url).then(function(response){
+							vue.client=response.data;
+						});
+					},
+					addClient:function(){
+						var client={
+							"tid":this.tid,
+							"id":this.id,
+							"name":this.name,
+							"sex":this.sex,
+							"address":this.address,
+							"phonenumber":this.phonenumber
+						};
+						var target=JSON.stringify(client);
+						var url="/client/addClient?client="+target;
+						axios.post(url).then(function(){
+							
+						});
+						
+						var check={
+							"cid":this.id,
+							"rid":this.room.roomid,
+							"reciepts":this.reciepts,
+							"deposit":this.reciepts-this.room.cost
+						};
+						var temp=JSON.stringify(check);
+						var url="/check/addOrder?order="+temp;
+						axios.post(url).then(function(){
+							
+						});
+						this.clear();
+						this.refresh();
+						location.href="/view/index";
+					},
+					clear: function(){
+						this.tid=null;
+						this.id='';
+						this.name='';
+						this.sex='';
+						this.phonenumber='';
+						this.reciepts=null;
+						this.address='';
+						this.client={};
+						this.room={};
+						this.rooms={};
+					},
+					refresh: function(){
+						var url="/room/getRooms";
+						axios.get(url).then(function(response){
+							vue.rooms=response.data;
+						});
+					},
+					mangeUser:function(){
+						//跳转到userManage.html
+						// location.href="localhost:8080/home/manageUser";
+						location.href="/view/user";
+						
+					},
+					manageEmployee:function(){
+						
+						location.href="/view/employee";
+					},
+					manageClient:function(){
+						
+						location.href="/view/client";
+					},
+					manageRoom:function(){
+						
+						location.href="/view/room";
+					},
+					manageCheck:function(){
+						
+						location.href="/view/check";
+					},
+					manageOrderItem:function(){
+						location.href="/home/manageItem";
+					}
+				}
+				
+			});
+		</script>
+	</body>
+</html>

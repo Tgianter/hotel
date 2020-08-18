@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<script type="text/javascript" src="../static/js/axios.min.js"></script>
+		<script type="text/javascript" src="../static/js/jquery.min.js"></script>
+		<script type="text/javascript" src="../static/js/vue.min.js"></script>
+		<title>权限管理</title>
+		
+		<style type="text/css">
+			div#user_page{
+				text-align: center;
+				/* width: 800px; */
+				/* height: 750px; */
+				/* border:1px solid LightSkyBlue; */
+				background-color: brown;
+			}
+			
+			div#left{
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				width: 200px;
+				height: 750px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: #F5F5DC;
+			}
+			
+			div#user{
+				position: absolute;
+				left: 200px;
+				top: 0px;
+				width: 600px;
+				height: 150px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: #BC8F8F;
+			}
+			div#userrole{
+				position: absolute;
+				left: 200px;
+				top: 150px;
+				width: 600px;
+				height: 150px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: cadetblue;
+			}
+			div#role{
+				position: absolute;
+				left: 200px;
+				top: 300px;
+				width: 600px;
+				height: 150px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: coral;
+			}
+			div#rolepermission{
+				position: absolute;
+				left: 200px;
+				top: 450px;
+				width: 600px;
+				height: 150px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: cyan;
+			}
+			div#permission{
+				position: absolute;
+				left: 200px;
+				top: 600px;
+				width: 600px;
+				height: 150px;
+				border:1px solid black;
+				margin: 0px;
+				background-color: greenyellow;
+			}
+			span.item{
+				/* border:1px solid black; */
+				margin-left: 0px;
+				margin-top: 0px;
+			}
+			div.showblock{
+				position: absolute;
+				left: 0px;
+				top: 0px;
+				width: 300px;
+				height: 150px;
+				border:1px solid black;
+				margin-left: 0px;
+				
+			}
+			div.addblock{
+				position: absolute;
+				left: 300px;
+				top: 0px;
+				width: 300px;
+				height: 150px;
+				/* border:1px solid black; */
+				margin-left: 0px;
+			}
+			button#refresh{
+				position: absolute;
+				left: 10px;
+				top:350px;
+			}
+			button#home{
+				position: absolute;
+				left: 10px;
+				top: 400px;
+			}
+			label#userLabel{
+				position: absolute;
+				left: 150px;
+				top: 75px;
+			}
+			label#userroleLabel{
+				position: absolute;
+				left: 125px;
+				top: 225px;
+			}
+			label#roleLabel{
+				position: absolute;
+				left: 150px;
+				top: 375px;
+			}
+			label#rolepermissionLabel{
+				position: absolute;
+				left: 80px;
+				top: 525px;
+			}
+			label#permissionLabel{
+				position: absolute;
+				left: 100px;
+				top: 675px;
+			}
+		</style>
+		
+	</head>
+	<body>
+	  	
+		<div  id="user_page" align="center">
+			<div id="left">
+				<button id="refresh" type="button" @click="allRefresh">刷新</button>
+				<button id="home" type="button" @click="backIndex">返回首页</button>
+				<label id="userLabel">user:</label>
+				<label id="userroleLabel">userrole:</label>
+				<label id="roleLabel">role:</label>
+				<label id="rolepermissionLabel">rolepermission:</label>
+				<label id="permissionLabel">permission:</label>
+			</div>
+			
+			<div id="right">
+				<div id="user">
+					<div class="showblock">	
+						<span >
+						<table border="1" cellspacing="0">
+						<tr v-for="u in users">
+							<td>{{u.id}}</td>  
+							<td>{{u.username}}</td>
+							<td><input type="button" @click="deleteUser(u.id)" value="删除"></td>
+						</tr>
+						</table>
+						</span>
+						
+						<span class="item">
+							<button type="button" @click="jumpUser('first')">首页</button>
+							<button type="button" @click="jumpUser('pre')">上一页</button>
+							<button type="button" @click="jumpUser('next')">下一页</button>
+							<button type="button" @click="jumpUser('tail')">尾页</button>
+						</span>
+					</div>
+					
+					<div class="addblock">
+						<table align="center">
+							<tr>
+								<td class="login_td">username:</td>
+								<td class="login_td"><input  type="text"  v-model="username" placeholder="input your name"/></td>
+							</tr>
+							<tr>
+								<td class="login_td">password:</td>
+								<td class="login_td"><input  type="text" v-model="password" placeholder="input your password"/></td>
+								
+							</tr>
+							<tr>
+								<td ><button type="button"   @click="addUser">添加</button></td>
+								<td><button type="button" @click="clear">清除</button></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div id="userrole">
+					<div class="showblock">								
+						<span>
+						<table border="1" cellspacing="0">
+						<tr v-for="ur in userroles">
+							<td>{{ur.uid}}</td>  
+							<td>{{ur.rid}}</td>
+							<td><input type="button" @click="deleteUserRole(ur.uid)" value="删除"></td>
+						</tr>
+						</table>
+						</span>
+						
+						<span class="item">
+							<button type="button" @click="jumpUserRole('first')">首页</button>
+							<button type="button" @click="jumpUserRole('pre')">上一页</button>
+							<button type="button" @click="jumpUserRole('next')">下一页</button>
+							<button type="button" @click="jumpUserRole('tail')">尾页</button>
+						</span>
+					</div>
+					<div class="addblock">
+						<table align="center">
+							<tr>
+								<td class="login_td">uid:</td>
+								<td class="login_td"><input  type="text"  v-model="uid" /></td>
+							</tr>
+							<tr>
+								<td class="login_td">rid:</td>
+								<td class="login_td"><input  type="text" v-model="rid" /></td>
+								
+							</tr>
+							<tr>
+								<td ><button type="button"   @click="addUserRole">添加</button></td>
+								<td><button type="button" @click="clear">清除</button></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div id="role">
+					<div class="showblock">
+						<span>
+						<table border="1" cellspacing="0">
+						<tr v-for="r in roles">
+							<td>{{r.id}}</td>  
+							<td>{{r.name}}</td>
+							<td><input type="button" @click="deleteRole(r.id)" value="删除"></td>
+						</tr>
+						</table>
+						</span>
+						
+						<span class="item">
+							<button type="button" @click="jumpRole('first')">首页</button>
+							<button type="button" @click="jumpRole('pre')">上一页</button>
+							<button type="button" @click="jumpRole('next')">下一页</button>
+							<button type="button" @click="jumpRole('tail')">尾页</button>
+						</span>
+					</div>
+					
+					<div class="addblock">								
+						<table align="center">
+							<tr>
+								<td class="login_td">name:</td>
+								<td class="login_td"><input  type="text" v-model="name" /></td>
+								
+							</tr>
+							<tr>
+								<td colspan="2"><button type="button"   @click="addRole">添加</button></td>
+							</tr>
+						</table>										
+						
+					</div>
+				</div>
+				
+				<div id="rolepermission">
+					<div class="showblock">
+						<span>
+						<table border="1" cellspacing="0">
+						<tr v-for="rp in rolepermissions">
+							<td>{{rp.rid}}</td>  
+							<td>{{rp.pid}}</td>
+							<td><input type="button" @click="deleteRolePermission(rp.rid)" value="删除"></td>
+						</tr>
+						</table>
+						</span>
+						
+						<span class="item">
+							<button type="button" @click="jumpRolePermission('first')">首页</button>
+							<button type="button" @click="jumpRolePermission('pre')">上一页</button>
+							<button type="button" @click="jumpRolePermission('next')">下一页</button>
+							<button type="button" @click="jumpRolePermission('tail')">尾页</button>
+						</span>
+					</div>
+					
+					<div class="addblock">
+						<table align="center">
+							<tr>
+								<td class="login_td">rid:</td>
+								<td class="login_td"><input  type="text" v-model="rid" /></td>
+								
+							</tr>
+							<tr>
+								<td class="login_td">pid:</td>
+								<td class="login_td"><input  type="text"  v-model="pid" /></td>
+							</tr>
+							<tr>
+								<td><button type="button"   @click="addRolePermission">添加</button></td>
+								<td><button type="button" @click="clear">清除</button></td>
+							</tr>
+							</table>
+					</div>
+				</div>
+				
+				<div id="permission">
+					<div class="showblock">									
+						<span>
+						<table border="1" cellspacing="0">
+						<tr v-for="p in permissions">
+							<td>{{p.id}}</td>  
+							<td>{{p.name}}</td>
+							<td><input type="button" @click="deletePermission(p.id)" value="删除"></td>
+						</tr>
+						</table>
+						</span>
+						
+						<span class="item">
+							<button type="button" @click="jumpPermission('first')">首页</button>
+							<button type="button" @click="jumpPermission('pre')">上一页</button>
+							<button type="button" @click="jumpPermission('next')">下一页</button>
+							<button type="button" @click="jumpPermission('tail')">尾页</button>
+						</span>
+					</div>
+					
+					<div class="addblock">
+						<table align="center">
+							<tr>
+								<td class="login_td">name:</td>
+								<td class="login_td"><input  type="text" v-model="name" /></td>
+								
+							</tr>
+							<tr>
+								<td colspan="2"><button type="button"   @click="addPermission">添加</button></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		<script>
+			var vue=new Vue({
+				el:"#user_page",
+				data:{
+					users:[],
+					userPageInfo:{},
+					username:'',
+					password:'',
+					
+					userroles:[],
+					userrolePageInfo:{},
+					uid:null,
+					rid:null,
+					
+					roles:[],
+					rolePageInfo:{},
+					name:'',
+					
+					rolepermissions:[],
+					rolepermissionPageInfo:{},
+					pid:null,
+					
+					permissions:[],
+					permissionPageInfo:{},
+					permission:{id:0,name:''}
+				},
+				mounted() {
+							this.refreshRole(1);
+							this.refreshUser(1);
+							this.refreshPermission(1);
+							this.refreshUserRole(1);
+							this.refreshRolePermission(1);
+				},
+				methods:{
+					backIndex: function(){
+						location.href="/view/index";
+					},
+					clear: function(){
+						this.username='';
+						this.password='';
+						this.uid=null;
+						this.rid=null;
+						this.name='';
+						this.pid=null;
+					},
+					addUser: function(){
+						var user={
+							"username":this.username,
+							"password":this.password
+						};
+						var str=JSON.stringify(user);
+						var url="/manage/addUser?user="+str;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					addUserRole: function(){
+						var temp={
+							"uid":this.uid,
+							"rid":this.rid
+						};
+						var userrole=JSON.stringify(temp);
+						var url="/manage/addUserRole?userrole="+userrole;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					addRole:function(){
+						var temp={
+							"id":0,
+							"name":this.name
+						};
+						var role=JSON.stringify(temp);
+						var url="/manage/addRole?role="+role;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					addRolePermission: function(){
+						var temp={
+							"rid":this.rid,
+							"pid":this.pid
+						};
+						var rolepermission=JSON.stringify(temp);
+						var url="/manage/addRolePermission?rolepermission="+rolepermission;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					addPermission: function(){
+						var temp={
+							"id":0,
+							"name":this.name
+						};
+						var permission=JSON.stringify(temp);
+						var url="/manage/addPermission?permission="+permission;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					jumpUser: function(page){
+						if(page=='first'){
+								this.refreshUser(1);
+						}else if(page=='pre'&&this.userPageInfo.pageNum!=1){
+								this.refreshUser(this.userPageInfo.prePage);
+						}else if(page=='next'&&this.userPageInfo.pageNum!=this.userPageInfo.pages){
+								this.refreshUser(this.userPageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refreshUser(this.userPageInfo.pages)
+						}
+					},
+					jumpRole: function(page){
+						if(page=='first'){
+								this.refreshRole(1);
+						}else if(page=='pre'&&this.rolePageInfo.pageNum!=1){
+								this.refreshRole(this.rolePageInfo.prePage);
+						}else if(page=='next'&&this.rolePageInfo.pageNum!=this.rolePageInfo.pages){
+								this.refreshRole(this.rolePageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refreshRole(this.rolePageInfo.pages)
+						}
+					},
+					jumpUserRole: function(page){
+						
+						if(page=='first'){
+								this.refreshUserRole(1);
+						}else if(page=='pre'&&this.userrolePageInfo.pageNum!=1){
+								this.refreshUserRole(this.userrolePageInfo.prePage);
+						}else if(page=='next'&&this.userrolePageInfo.pageNum!=this.userrolePageInfo.pages){
+								this.refreshUserRole(this.userrolePageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refreshUserRole(this.userrolePageInfo.pages)
+						}
+					},
+					jumpRolePermission: function(page){
+						
+						if(page=='first'){
+								this.refreshRolePermission(1);
+						}else if(page=='pre'&&this.rolepermissionPageInfo.pageNum!=1){
+								this.refreshRolePermission(this.rolepermissionPageInfo.prePage);
+						}else if(page=='next'&&this.rolepermissionPageInfo.pageNum!=this.rolepermissionPageInfo.pages){
+								this.refreshRolePermission(this.rolepermissionPageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refreshRolePermission(this.rolepermissionPageInfo.pages)
+						}
+					},
+					jumpPermission: function(page){
+						
+						if(page=='first'){
+								this.refreshPermission(1);
+						}else if(page=='pre'&&this.permissionPageInfo.pageNum!=1){
+								this.refreshPermission(this.permissionPageInfo.prePage);
+						}else if(page=='next'&&this.permissionPageInfo.pageNum!=this.permissionPageInfo.pages){
+								this.refreshPermission(this.permissionPageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refreshPermission(this.permissionPageInfo.pages)
+						}
+					},
+					allRefresh: function(){
+						this.refreshRole(1);
+						this.refreshUser(1);
+						this.refreshPermission(1);
+						this.refreshUserRole(1);
+						this.refreshRolePermission(1);
+					},
+					refreshRole:function(start){
+						//要将this存起来，因为在axios响应成功的回调函数中this的值会变化
+						//要使用vue中的data就要，先把vue的this保存起来
+						var that=this;
+						var url1="/manage/getAllRole?start="+start;
+						// axios.post(url,{username:this.username,password:this.password}).then(function(response){
+						axios.get(url1).then(function(response){
+							vue.rolePageInfo=response.data; 
+							vue.roles=response.data.list;
+							// vue.totalPage=response.data.pages;							
+							// vue.currentPage=response.data.pageNum;							
+						
+						});
+						
+					},
+					refreshUser: function(start){
+						var url="/manage/getAllUser?start="+start;
+						axios.get(url).then(function(response){
+							vue.userPageInfo=response.data;
+							vue.users=response.data.list;
+						});
+					},
+					refreshPermission:function(start){
+						var url2="/manage/getAllPermission?start="+start;
+						// axios.post(url,{username:this.username,password:this.password}).then(function(response){
+						axios.get(url2).then(function(response){
+							vue.permissionPageInfo=response.data; 
+							vue.permissions=response.data.list;
+							// vue.totalPage=response.data.pages;							
+							// vue.currentPage=response.data.pageNum;							
+						
+						});
+					},
+					refreshUserRole:function(start){
+						var url3="/manage/getAllUserRole?start="+start;
+						// axios.post(url,{username:this.username,password:this.password}).then(function(response){
+						axios.get(url3).then(function(response){
+							vue.userrolePageInfo=response.data; 
+							vue.userroles=response.data.list;
+							// vue.totalPage=response.data.pages;							
+							// vue.currentPage=response.data.pageNum;							
+						
+						});
+					},
+					refreshRolePermission:function(start){
+						var url4="/manage/getAllRolePermission?start="+start;
+						// axios.post(url,{username:this.username,password:this.password}).then(function(response){
+						axios.get(url4).then(function(response){
+							vue.rolepermissionPageInfo=response.data; 
+							vue.rolepermissions=response.data.list;
+							// vue.totalPage=response.data.pages;							
+							// vue.currentPage=response.data.pageNum;							
+						
+						});
+					},
+					deleteUser:function(id){
+						var url="/manage/deleteUser?id="+id;
+						axios.delete(url).then(function(response){
+							
+						});
+					},
+					deleteUserRole:function(id){
+						var url="/manage/deleteUserRoleByUid?uid="+id;
+						axios.delete(url).then(function(response){
+							
+						});
+					},
+					deleteRole:function(id){
+						var url="/manage/deleteRole?id="+id;
+						axios.delete(url).then(function(response){
+							
+						});
+					},
+					deleteRolePermission:function(id){
+						var url="/manage/deleteRolePermissionByRid?rid="+id;
+						axios.delete(url).then(function(response){
+							
+						});
+					},
+					deletePermission:function(id){
+						var url="/manage/deletePermission?id="+id;
+						axios.delete(url).then(function(response){
+							
+						});
+					}
+				}
+			});
+		</script>	
+	</body>
+</html>

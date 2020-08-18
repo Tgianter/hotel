@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>房间管理</title>
+		<script type="text/javascript" src="../static/js/axios.min.js"></script>
+		<script type="text/javascript" src="../static/js/vue.min.js"></script>
+	</head>
+	<style>
+		div#left{
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 200px;
+			height: 800px;
+			border: 1px solid black;
+			background-color: #F5F5DC;
+		}
+		div#room{
+			position:absolute;
+			left:200px;
+			top:0px;
+			width: 600px;
+			height: 800px;
+			border: 1px solid black;
+		}
+		#getAllRoom{
+			position: absolute;
+			width: 600px;
+			height: 250px;
+			left: 0px;
+			top: 0px;
+			border: 1px solid black;
+			background-color: #BC8F8F;
+		}
+		#addRoom{
+			position: absolute;
+			width: 600px;
+			height: 200px;
+			left: 0px;
+			top: 250px;
+			background-color: cadetblue;
+		}
+		#searchRoom{
+			position: absolute;
+			width: 600px;
+			height: 150px;
+			border: 1px solid black;
+			left: 0px;
+			top: 450px;
+			background-color: coral;
+		}
+		#updateRoom{
+			position: absolute;
+			width: 600px;
+			height: 200px;
+			left: 0px;
+			top: 600px;
+			background-color: cyan;
+		}
+		#area1{
+			position: absolute;
+			left: 150px;
+			top: 125px;
+		}
+		#area2{
+			position: absolute;
+			left: 150px;
+			top: 350px;
+		}
+		#area3{
+			position: absolute;
+			left: 150px;
+			top: 525px;
+		}
+		#area4{
+			position: absolute;
+			left: 150px;
+			top: 700px;
+		}
+		#backIndex{
+			position: absolute;
+			left: 25px;
+			top:375px;
+		}
+		#refresh{
+			position: absolute;
+			left: 25px;
+			top: 425px;
+		}
+		#leftpart{
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 250px;
+			height: 150px;
+		}
+		#rightpart{
+			position: absolute;
+			left: 300px;
+			top: 0px;
+			width: 300px;
+			height: 150px;
+		}
+	</style>
+	<body>
+		<div id="roomPage" align="center">
+			<div id="left">
+				<input id="refresh" type="button" @click="refresh(1)"  value="刷新"/>
+				<input id="backIndex" type="button" @click="backIndex" value="返回首页" />
+				<label id="area1">查看：</label>
+				<label id="area2">增加：</label>
+				<label id="area3">查找：</label>
+				<label id="area4">编辑：</label>
+			</div>
+			
+			<div id="room">
+				<div id="getAllRoom">
+					<div>
+						<table border="1" cellspacing="0">
+							<thead>
+								<td>房号</td>
+								<td>房间类型</td>
+								<td>房价</td>
+								<td>入住情况</td>
+							</thead>
+							<tr v-for="r in rooms">
+								<td>{{r.roomid}}</td>
+								<td>{{r.type}}</td>
+								<td>{{r.cost}}</td>
+								<td>{{r.checked}}</td>
+								<td><input type="button" @click="deleteRoom(r.roomid)" value="删除"></td>
+							</tr>
+						</table>
+					</div>
+					<div>
+						<button type="button" @click="jump('first')">首页</button>
+						<button type="button" @click="jump('pre')">上一页</button>
+						<button type="button" @click="jump('next')">下一页</button>
+						<button type="button" @click="jump('tail')">尾页</button>
+					</div>
+				</div>
+				
+				<div id="addRoom">
+					<table align="center">
+						<tr>
+							<td>roomid:</td>
+							<td><input  type="text"  v-model="roomid" /></td>
+						</tr>
+						<tr>
+							<td>type:</td>
+							<td><input  type="text"  v-model="type" /></td>
+						</tr>
+						<tr>
+							<td>cost:</td>
+							<td><input  type="text"  v-model="cost" /></td>
+						</tr>
+						<tr>
+							<td>checked:</td>
+							<td><input  type="text"  v-model="checked" /></td>
+						</tr>
+						<tr>
+							<td><button type="button"   @click="addRoom">添加</button></td>
+							<td><button type="button" @click="clear">清除</button></td>
+						</tr>
+					</table>
+				</div>
+				
+				<div id="searchRoom">
+					<div id="leftpart">
+						<div>
+							<table border="0" cellspacing="0">
+								<tr>
+									<td>roomid:</td>
+									<td><input type="text" v-model="roomid" placeholder="请输入对应的id"/></td>
+									<td><button type="button" @click="query">查询</button></td>
+								</tr>
+								
+							</table>						
+						</div>
+						
+						<div>
+							<table  cellspacing="0">
+								
+									<td>{{room.roomid}}</td>
+									<td>{{room.type}}</td>
+									<td>{{room.cost}}</td>
+									<td>{{room.checked}}</td>
+							</table>
+						</div>
+					</div>
+					
+					<div id="rightpart">
+						<div>
+							<table border="0" cellspacing="0">
+								<tr>
+									<td>type:</td>
+									<td><input type="text" v-model="type" placeholder="请输入对应的type"/></td>
+									<td><button type="button" @click="queryByType(1)">查询</button></td>
+								</tr>
+							</table>							
+						</div>
+						<div>
+							<table border="1" cellspacing="0">
+								<tr v-for="t in types">
+									<td>{{t.roomid}}</td>
+									<td>{{t.type}}</td>
+									<td>{{t.cost}}</td>
+									<td>{{t.checked}}</td>
+									<td><input type="button" @click="deleteRoom(t.roomid)" value="删除"></td>
+								</tr>
+							</table>
+						</div>
+						<div>
+							<button type="button" @click="typeJump('first')">首页</button>
+							<button type="button" @click="typeJump('pre')">上一页</button>
+							<button type="button" @click="typeJump('next')">下一页</button>
+							<button type="button" @click="typeJump('tail')">尾页</button>
+						</div>
+					</div>
+											
+				</div>
+				
+				<div id="updateRoom">
+					<table align="center">
+						<tr>
+							<td>roomid:</td>
+							<td><input  type="text"  v-model="roomid" /></td>
+						</tr>
+						<tr>
+							<td>type:</td>
+							<td><input  type="text"  v-model="type" /></td>
+						</tr>
+						<tr>
+							<td>cost:</td>
+							<td><input  type="text"  v-model="cost" /></td>
+						</tr>
+						<tr>
+							<td>checked:</td>
+							<td><input  type="text"  v-model="checked" /></td>
+						</tr>
+						<tr>
+							<td><button type="button"   @click="updateRoom">编辑</button></td>
+							<td><button type="button" @click="clear">清除</button></td>
+						</tr>
+					</table>
+				</div>				
+			</div>
+		</div>
+		<script>
+			var vue=new Vue({
+				el:"#roomPage",
+				data:{
+					rooms:{},
+					types:{},
+					roomPageInfo:{},
+					typePageInfo:{},
+					room:{},
+					id:null,
+					roomid:null,
+					type:null,
+					cost:null,
+					checked:null
+				},
+				mounted() {
+					this.refresh(1);
+				},
+				methods:{
+					backIndex: function(){
+						location.href="/view/index";
+					},
+					updateRoom: function(){
+						var room={
+							"id":this.id,
+							"roomid":this.roomid,
+							"type":this.type,
+							"cost":this.cost,
+							"checked":this.checked
+						};
+						var target=JSON.stringify(room);
+						var url="/room/updateRoom?room="+target;
+						axios.post(url).then(function(response){
+							
+						});
+					},
+					query: function(){
+						var url="/room/getRoomById?id="+this.roomid;
+						axios.get(url).then(function(response){
+							vue.room=response.data;
+						});
+					},
+					queryByType: function(start){
+						var url="/room/getRoomsByType?type="+this.type+"&start="+start;
+						axios.get(url).then(function(response){
+							vue.typePageInfo=response.data;
+							vue.types=response.data.list;
+						});
+					},
+					addRoom: function(){
+						var room={
+							"id":this.id,
+							"roomid":this.roomid,
+							"type":this.type,
+							"cost":this.cost,
+							"checked":this.checked
+						};
+						var target=JSON.stringify(room);
+						var url="/room/addRoom?room="+target;
+						axios.post(url).then(function(){
+							
+						});
+					},
+					clear: function(){
+						this.id=null;
+						this.roomid=null;
+						this.type=null;
+						this.cost=null;
+						this.checked=null;
+					},
+					deleteRoom:function(id){
+						var url="/room/deleteRoom?id="+id;
+						axios.delete(url).then(function(){
+							
+						});
+					},
+					typeJump: function(page){
+						if(page=='first'){
+								this.queryByType(1);
+						}else if(page=='pre'&&this.typePageInfo.pageNum!=1){
+								this.queryByType(this.typePageInfo.prePage);
+						}else if(page=='next'&&this.typePageInfo.pageNum!=this.typePageInfo.pages){
+								this.queryByType(this.typePageInfo.nextPage);
+						}else if(page=='tail'){
+								this.queryByType(this.typePageInfo.pages)
+						}
+					},
+					jump: function(page){
+						if(page=='first'){
+								this.refresh(1);
+						}else if(page=='pre'&&this.roomPageInfo.pageNum!=1){
+								this.refresh(this.roomPageInfo.prePage);
+						}else if(page=='next'&&this.roomPageInfo.pageNum!=this.roomPageInfo.pages){
+								this.refresh(this.roomPageInfo.nextPage);
+						}else if(page=='tail'){
+								this.refresh(this.roomPageInfo.pages)
+						}
+					},
+					refresh: function(start){
+						var url="/room/getAllRoom?start="+start;
+						axios.get(url).then(function(response){
+							vue.roomPageInfo=response.data;
+							vue.rooms=response.data.list;
+						});
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
