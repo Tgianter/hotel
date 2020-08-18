@@ -7,3 +7,5 @@
 
 前端技术栈：html、css、JavaScript、vue.js
 
+待完成：酒店每日开房账单的生成和存储
+
